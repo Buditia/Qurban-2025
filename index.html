@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Daftar Shoqibul Qurban</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+  <style>
+    body {
+      background: linear-gradient(to bottom, #eafaf1, #dceefb);
+      font-family: 'Arial', sans-serif;
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    .header {
+      background: #d4edda;
+      padding: 30px;
+      border-radius: 15px;
+      text-align: center;
+      margin-bottom: 30px;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .header img {
+      width: 120px;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 50%;
+      display: block;
+      margin: 0 auto 20px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .header h1 {
+      color: #1b4332;
+      font-weight: bold;
+      margin-bottom: 15px;
+      font-size: 1.8rem;
+    }
+
+    .header p {
+      color: #2d6a4f;
+      font-style: italic;
+      max-width: 600px;
+      margin: 0 auto;
+      font-size: 1.1rem;
+    }
+
+    .qurban-item {
+      animation: fadeInCard 0.5s ease;
+    }
+
+    @keyframes fadeInCard {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .btn-custom {
+      background-color: #2a9d8f;
+      color: white;
+      font-weight: bold;
+    }
+
+    .btn-custom:hover {
+      background-color: #21867a;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container py-5">
+
+    <!-- Header -->
+    <div class="header">
+      <img src="Logomasjid.PNG" alt="Logo Masjid">
+      <h1>Daftar Shoqibul Qurban Masjid Al Ittihaad Gg. Durmo</h1>
+      <p>
+        “Sesungguhnya Kami telah memberikan kepadamu nikmat yang banyak.
+        Maka dirikanlah shalat karena Tuhanmu dan berqurbanlah.”
+        <br />(QS. Al-Kautsar: 1-2)
+      </p>
+    </div>
+
+    <!-- Tombol -->
+    <div class="text-center mb-4">
+      <button class="btn btn-success mx-2" onclick="addQurban('Sapi')">Tambah Qurban Sapi</button>
+      <button class="btn btn-primary mx-2" onclick="addQurban('Kambing')">Tambah Qurban Kambing</button>
+    </div>
+
+    <!-- Daftar Qurban Sapi -->
+    <h3 class="text-success mb-3">Daftar Qurban Sapi</h3>
+    <div id="qurbanSapiList" class="row g-4 mb-5"></div>
+
+    <!-- Daftar Qurban Kambing -->
+    <h3 class="text-primary mb-3">Daftar Qurban Kambing</h3>
+    <div id="qurbanKambingList" class="row g-4"></div>
+
+    <!-- Rekap WhatsApp dan Download -->
+    <div class="mt-5">
+      <h5>Masukkan Nomor WhatsApp Tujuan:</h5>
+      <div class="input-group mb-3">
+        <input type="text" id="whatsappNumber" class="form-control" placeholder="Contoh: 6281578205368" required />
+        <button class="btn btn-custom" onclick="sendToWhatsApp()">Kirim Rekap ke WhatsApp</button>
+      </div>
+
+      <div class="text-center mt-4">
+        <button class="btn btn-danger mx-2" onclick="resetAll()">Reset Semua Daftar</button>
+        <button class="btn btn-primary mx-2" onclick="downloadRekap()">Download Rekap .txt</button>
+        <button class="btn btn-secondary mx-2" onclick="window.print()">Cetak Daftar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function addQurban(type) {
+      const qurbanList = type === 'Sapi' ? document.getElementById('qurbanSapiList') : document.getElementById('qurbanKambingList');
+      const col = document.createElement('div');
+      col.className = 'col-md-6 qurban-item';
+
+      const card = document.createElement('div');
+      card.className = 'card position-relative';
+
+      const cardBody = document.createElement('div');
+      cardBody.className = 'card-body';
+
+      const cardTitle = document.createElement('h5');
+      cardTitle.className = 'card-title';
+
+      const countExisting = qurbanList.querySelectorAll('.card').length + 1;
+      cardTitle.textContent = `Qurban ${type} #${countExisting}`;
+      cardBody.appendChild(cardTitle);
+
+      const inputGroup = document.createElement('div');
+      inputGroup.className = 'mt-3';
+
+      if (type === 'Sapi') {
+        for (let i = 1; i <= 7; i++) {
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.className = 'form-control mb-2';
+          input.placeholder = `Nama Shohibul Qurban ${i}`;
+          inputGroup.appendChild(input);
+        }
+
+        const btnSendSingle = document.createElement('button');
+        btnSendSingle.className = 'btn btn-sm btn-success mt-3';
+        btnSendSingle.textContent = 'Kirim Qurban Ini via WA';
+        btnSendSingle.onclick = () => sendSingleQurbanToWhatsApp(card);
+        inputGroup.appendChild(btnSendSingle);
+      } else if (type === 'Kambing') {
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'form-control';
+        input.placeholder = 'Nama Shohibul Qurban';
+        inputGroup.appendChild(input);
+      }
+
+      cardBody.appendChild(inputGroup);
+      card.appendChild(cardBody);
+      col.appendChild(card);
+
+      // Tombol Hapus
+      const btnDelete = document.createElement('button');
+      btnDelete.className = 'btn btn-sm btn-danger position-absolute top-0 end-0 m-2';
+      btnDelete.innerHTML = '&times;';
+      btnDelete.onclick = function () {
+        if (confirm('Yakin ingin menghapus Qurban ini?')) {
+          col.remove();
+        }
+      };
+      card.appendChild(btnDelete);
+
+      qurbanList.appendChild(col);
+    }
+
+    function sendToWhatsApp() {
+      const whatsappNumber = document.getElementById('whatsappNumber').value;
+      if (!whatsappNumber) {
+        alert("Harap masukkan nomor WhatsApp tujuan!");
+        return;
+      }
+
+      const qurbanCardsSapi = document.querySelectorAll('#qurbanSapiList .card');
+      const qurbanCardsKambing = document.querySelectorAll('#qurbanKambingList .card');
+
+      let rekapPesan = "Assalamu'alaikum,\n\nBerikut adalah hasil rekap Shoqibul Qurban:\n\n";
+
+      if (qurbanCardsSapi.length > 0) {
+        rekapPesan += "Sapi:\n";
+        qurbanCardsSapi.forEach((card, index) => {
+          const title = card.querySelector('.card-title').textContent;
+          const inputs = card.querySelectorAll('input');
+          rekapPesan += `${index + 1}. ${title}:\n`;
+          inputs.forEach(input => {
+            const nama = input.value.trim() || "-";
+            rekapPesan += `   - ${nama}\n`;
+          });
+          rekapPesan += '\n';
+        });
+      }
+
+      if (qurbanCardsKambing.length > 0) {
+        rekapPesan += "Kambing:\n";
+        qurbanCardsKambing.forEach((card, index) => {
+          const title = card.querySelector('.card-title').textContent;
+          const inputs = card.querySelectorAll('input');
+          rekapPesan += `${index + 1}. ${title}:\n`;
+          inputs.forEach(input => {
+            const nama = input.value.trim() || "-";
+            rekapPesan += `   - ${nama}\n`;
+          });
+          rekapPesan += '\n';
+        });
+      }
+
+      const encodedMessage = encodeURIComponent(rekapPesan);
+      const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
+      window.open(whatsappLink, "_blank");
+    }
+
+    function sendSingleQurbanToWhatsApp(cardElement) {
+      const whatsappNumber = prompt("Masukkan nomor WhatsApp tujuan (cth: 628123456789):");
+      if (!whatsappNumber) return;
+
+      const title = cardElement.querySelector('.card-title').textContent;
+      const inputs = cardElement.querySelectorAll('input');
+
+      let pesan = `Assalamu'alaikum,\n\nBerikut adalah rekap untuk ${title}:\n\n`;
+      inputs.forEach((input, i) => {
+        const nama = input.value.trim() || `Shohibul ${i + 1}`;
+        pesan += `   - ${nama}\n`;
+      });
+
+      const encoded = encodeURIComponent(pesan);
+      const link = `https://wa.me/${whatsappNumber}?text=${encoded}`;
+      window.open(link, "_blank");
+    }
+
+    function resetAll() {
+      if (confirm("Yakin ingin menghapus semua daftar Qurban?")) {
+        document.getElementById('qurbanSapiList').innerHTML = "";
+        document.getElementById('qurbanKambingList').innerHTML = "";
+      }
+    }
+
+    function downloadRekap() {
+      const qurbanCardsSapi = document.querySelectorAll('#qurbanSapiList .card');
+      const qurbanCardsKambing = document.querySelectorAll('#qurbanKambingList .card');
+
+      let rekapText = "Rekap Shoqibul Qurban\n\n";
+
+      if (qurbanCardsSapi.length > 0) {
+        rekapText += "Sapi:\n";
+        qurbanCardsSapi.forEach((card, index) => {
+          const title = card.querySelector('.card-title').textContent;
+          const inputs = card.querySelectorAll('input');
+          rekapText += `${index + 1}. ${title}:\n`;
+          inputs.forEach(input => {
+            const nama = input.value.trim() || "-";
+            rekapText += `   - ${nama}\n`;
+          });
+          rekapText += '\n';
+        });
+      }
+
+      if (qurbanCardsKambing.length > 0) {
+        rekapText += "Kambing:\n";
+        qurbanCardsKambing.forEach((card, index) => {
+          const title = card.querySelector('.card-title').textContent;
+          const inputs = card.querySelectorAll('input');
+          rekapText += `${index + 1}. ${title}:\n`;
+          inputs.forEach(input => {
+            const nama = input.value.trim() || "-";
+            rekapText += `   - ${nama}\n`;
+          });
+          rekapText += '\n';
+        });
+      }
+
+      const blob = new Blob([rekapText], { type: 'text/plain' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = "Rekap_Qurban.txt";
+      link.click();
+    }
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

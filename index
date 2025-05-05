@@ -1,1 +1,108 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard Qurban</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #e8f5e9; /* Lembut seperti nuansa Madinah */
+      margin: 0;
+      padding: 0;
+      color: #2e7d32;
+    }
+    header {
+      background-color: #388e3c;
+      color: white;
+      padding: 1em;
+      text-align: center;
+      border-bottom: 4px solid #1b5e20;
+    }
+    section {
+      padding: 1em;
+    }
+    h2 {
+      color: #2e7d32;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1em;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 0.6em;
+      text-align: left;
+    }
+    th {
+      background-color: #c8e6c9;
+    }
+    .box {
+      background-color: #ffffff;
+      padding: 1em;
+      margin-bottom: 2em;
+      border-radius: 10px;
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Dashboard Qurban Masjid</h1>
+    <p>Data Panitia Qurban - Live dari Google Sheets</p>
+  </header>
 
+  <section>
+    <div class="box">
+      <h2>Jadwal Kegiatan</h2>
+      <div id="jadwal"></div>
+    </div>
+    <div class="box">
+      <h2>Keuangan</h2>
+      <div id="keuangan"></div>
+    </div>
+    <div class="box">
+      <h2>Data Shoqibul Qurban</h2>
+      <div id="shoqibul"></div>
+    </div>
+  </section>
+
+  <script>
+    const sheetID = '1Zsoi345twduI15BfU4KRwaAwwLP-qLoU'; // ID Anda
+    const base = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?`;
+
+    const sheets = {
+      jadwal: 'Jadwal_Kegiatan',
+      keuangan: 'Keuangan',
+      shoqibul: 'Shoqibul_Qurban'
+    };
+
+    function fetchSheet(sheetName, containerId) {
+      const url = `${base}&sheet=${sheetName}`;
+      fetch(url)
+        .then(res => res.text())
+        .then(rep => {
+          const json = JSON.parse(rep.substr(47).slice(0, -2));
+          const cols = json.table.cols.map(c => c.label);
+          const rows = json.table.rows;
+
+          let html = '<table><thead><tr>' +
+            cols.map(c => `<th>${c}</th>`).join('') + '</tr></thead><tbody>';
+
+          rows.forEach(row => {
+            html += '<tr>' +
+              row.c.map(cell => `<td>${cell ? cell.v : ''}</td>`).join('') + '</tr>';
+          });
+
+          html += '</tbody></table>';
+          document.getElementById(containerId).innerHTML = html;
+        });
+    }
+
+    fetchSheet(sheets.jadwal, 'jadwal');
+    fetchSheet(sheets.keuangan, 'keuangan');
+    fetchSheet(sheets.shoqibul, 'shoqibul');
+  </script>
+</body>
+</html>
